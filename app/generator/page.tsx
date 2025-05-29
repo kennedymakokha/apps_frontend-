@@ -4,27 +4,19 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function Home() {
-    const initialState = {
-        url: '',
-        ssid: '',
-        password: '',
-        color: '#000000',
-        background: '#ffffff',
-    };
-
-    const [state, setState] = useState(initialState);
+    const [url, setUrl] = useState('');
+    const [ssid, setSsid] = useState('');
+    const [password, setPassword] = useState('');
+    const [color, setColor] = useState('#000000');
+    const [background, setBackground] = useState('#ffffff');
     const [wifi, setWifi] = useState(false);
     const [qrImage, setQrImage] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [logo, setLogo] = useState<File | null>(null);
 
-    const { url, ssid, password, color, background } = state;
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
 
-    const handleChange = (value: string, name: keyof typeof initialState) => {
-        setError('');
-        setState((prev) => ({ ...prev, [name]: value }));
-    };
     const handleLogoChange = (file: File | null) => {
         if (file && !file.type.startsWith('image/')) {
             setError('Only image files are allowed.');
@@ -39,17 +31,41 @@ export default function Home() {
         setLogo(file);
     };
 
-    const Button = ({ onClick, text, active }: { onClick: () => void; text: string; active: boolean }) => (
-        <button
-            type="button"
-            onClick={onClick}
-            className={`flex items-center justify-center w-full py-2 border rounded-md ${active ? 'bg-slate-800 text-blue-400' : 'bg-white'
-                }`}
-        >
-            {text}
-        </button>
-    );
+    const getContrastColor = (hex: string) => {
+        const r = parseInt(hex.substr(1, 2), 16);
+        const g = parseInt(hex.substr(3, 2), 16);
+        const b = parseInt(hex.substr(5, 2), 16);
+        return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000' : '#fff';
+    };
 
+    // const handleGenerate = async (e: React.FormEvent) => {
+    //     e.preventDefault();
+    //     setLoading(true);
+    //     setError('');
+    //     setQrImage('');
+
+    //     try {
+    //         const formData = new FormData();
+    //         if (wifi) {
+    //             formData.append('ssid', ssid);
+    //             formData.append('password', password);
+    //         } else {
+    //             formData.append('url', url);
+    //         }
+
+    //         formData.append('color', color);
+    //         formData.append('background', background);
+    //         if (logo) formData.append('logo', logo);
+
+    //         const endpoint = wifi ? `${API_BASE}/api/generate-qr` : `${API_BASE}/api/generate-qrtolink`;
+    //         const res = await axios.post(endpoint, formData);
+    //         setQrImage(res.data.qrImage);
+    //     } catch (err: any) {
+    //         setError(err.response?.data?.error || 'QR generation failed');
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
     const handleGenerate = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -62,20 +78,22 @@ export default function Home() {
                 formData.append('ssid', ssid);
                 formData.append('password', password);
             } else {
-                formData.append('url', url); // ✅ Correct key
+                formData.append('url', url);
             }
-            // formData.append('ssid', wifi ? ssid : url);
 
             formData.append('color', color);
             formData.append('background', background);
             if (logo) formData.append('logo', logo);
 
+            // Correct endpoints matching your backend
             const endpoint = wifi
-                ? 'http://localhost:5000/api/generate-qr'
-                : 'http://localhost:5000/api/generate-qrtolink';
+                ? `${API_BASE}/api/generate-qr`     // WiFi generate QR
+                : `${API_BASE}/api/generate-qrtolink`; // URL generate QR
 
-            const res = await axios.post(endpoint, formData);
-            setQrImage(res.data.qrImage); // base64 image string
+            const res = await axios.post(endpoint, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setQrImage(res.data.qrImage);
         } catch (err: any) {
             setError(err.response?.data?.error || 'QR generation failed');
         } finally {
@@ -83,6 +101,32 @@ export default function Home() {
         }
     };
 
+    // const handleDownload = async () => {
+    //     try {
+    //         const formData = new FormData();
+    //         if (wifi) {
+    //             formData.append('ssid', ssid);
+    //             formData.append('password', password);
+    //         } else {
+    //             formData.append('url', url);
+    //         }
+
+    //         formData.append('color', color);
+    //         formData.append('background', background);
+    //         if (logo) formData.append('logo', logo);
+
+    //         const endpoint = wifi ? `${API_BASE}/api/generate-qr` : `${API_BASE}/api/download-qrtolink`;
+
+    //         const res = await axios.post(endpoint, formData, { responseType: 'blob' });
+    //         const blob = new Blob([res.data], { type: 'image/png' });
+    //         const link = document.createElement('a');
+    //         link.href = URL.createObjectURL(blob);
+    //         link.download = 'qr-code.png';
+    //         link.click();
+    //     } catch {
+    //         setError('Download failed');
+    //     }
+    // };
     const handleDownload = async () => {
         try {
             const formData = new FormData();
@@ -90,18 +134,21 @@ export default function Home() {
                 formData.append('ssid', ssid);
                 formData.append('password', password);
             } else {
-                formData.append('url', url); // Fix here too
+                formData.append('url', url);
             }
+
             formData.append('color', color);
             formData.append('background', background);
             if (logo) formData.append('logo', logo);
 
+            // Correct endpoints matching your backend
             const endpoint = wifi
-                ? 'http://localhost:5000/api/generate-qr'
-                : 'http://localhost:5000/api/download-qrtolink';
+                ? `${API_BASE}/api/download-qr`       // WiFi download QR
+                : `${API_BASE}/api/download-qrtolink`;  // URL download QR
 
             const res = await axios.post(endpoint, formData, {
                 responseType: 'blob',
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
 
             const blob = new Blob([res.data], { type: 'image/png' });
@@ -114,19 +161,34 @@ export default function Home() {
         }
     };
 
-    // 🔁 Auto-expire QR code after 10 minutes
     useEffect(() => {
         if (qrImage) {
             const timer = setTimeout(() => {
                 setQrImage('');
-                setState(initialState);
+                setUrl('');
+                setSsid('');
+                setPassword('');
+                setColor('#000000');
+                setBackground('#ffffff');
                 setLogo(null);
                 alert('QR code expired. Please regenerate.');
-            }, 10 * 60 * 1000); // 10 minutes
-
+            }, 10 * 60 * 1000);
             return () => clearTimeout(timer);
         }
     }, [qrImage]);
+
+    const isFormValid = wifi ? ssid && password : url;
+
+    const Button = ({ onClick, text, active }: { onClick: () => void; text: string; active: boolean }) => (
+        <button
+            type="button"
+            onClick={onClick}
+            className={`flex items-center justify-center w-full py-2 border rounded-md ${active ? 'bg-slate-800 text-blue-400' : 'bg-white'
+                }`}
+        >
+            {text}
+        </button>
+    );
 
     return (
         <main className="min-h-screen text-black bg-slate-800 flex items-center justify-center p-4">
@@ -134,18 +196,19 @@ export default function Home() {
                 <h1 className="text-2xl font-bold text-center mb-6">QR Code Generator</h1>
 
                 <div className="flex w-full px-2 h-10 gap-2 mb-4">
-                    <Button text="URL" onClick={() => { setWifi(false); setQrImage(''); setState(initialState); }} active={!wifi} />
-                    <Button text="WiFi" onClick={() => { setWifi(true); setQrImage(''); setState(initialState); }} active={wifi} />
+                    <Button text="URL" onClick={() => { setWifi(false); setQrImage(''); }} active={!wifi} />
+                    <Button text="WiFi" onClick={() => { setWifi(true); setQrImage(''); }} active={wifi} />
                 </div>
 
                 <form onSubmit={handleGenerate} className="space-y-4">
                     {!wifi ? (
                         <div className="border border-slate-300 rounded-md p-2">
-                            <label className="block text-sm font-medium">URL</label>
+                            <label htmlFor="url" className="block text-sm font-medium">URL</label>
                             <input
+                                id="url"
                                 type="url"
                                 value={url}
-                                onChange={(e) => handleChange(e.target.value, 'url')}
+                                onChange={(e) => setUrl(e.target.value)}
                                 required
                                 className="w-full mt-1 border bg-blue-100 rounded px-3 py-2"
                                 placeholder="https://example.com"
@@ -153,23 +216,25 @@ export default function Home() {
                         </div>
                     ) : (
                         <div className="border border-slate-300 rounded-md p-2">
-                            <div className="flex flex-col mb-2">
-                                <label className="block text-sm font-medium">SSID</label>
+                            <div className="mb-2">
+                                <label htmlFor="ssid" className="block text-sm font-medium">SSID</label>
                                 <input
+                                    id="ssid"
                                     type="text"
                                     value={ssid}
-                                    onChange={(e) => handleChange(e.target.value, 'ssid')}
+                                    onChange={(e) => setSsid(e.target.value)}
                                     required
                                     className="w-full mt-1 border bg-blue-100 rounded px-3 py-2"
                                     placeholder="Network name"
                                 />
                             </div>
-                            <div className="flex flex-col">
-                                <label className="block text-sm font-medium">Password</label>
+                            <div>
+                                <label htmlFor="password" className="block text-sm font-medium">Password</label>
                                 <input
+                                    id="password"
                                     type="password"
                                     value={password}
-                                    onChange={(e) => handleChange(e.target.value, 'password')}
+                                    onChange={(e) => setPassword(e.target.value)}
                                     required
                                     className="w-full mt-1 border bg-blue-100 rounded px-3 py-2"
                                     placeholder="Network password"
@@ -180,23 +245,23 @@ export default function Home() {
 
                     <div className="flex space-x-4">
                         <div className="flex-1 flex flex-col items-center">
-                            <label className="block text-sm font-medium" style={{ color }}>Foreground</label>
+                            <label className="block text-sm font-medium" style={{ color: getContrastColor(color) }}>Foreground</label>
                             {!qrImage && (
                                 <input
                                     type="color"
                                     value={color}
-                                    onChange={(e) => handleChange(e.target.value, 'color')}
+                                    onChange={(e) => setColor(e.target.value)}
                                     className="w-20 h-10"
                                 />
                             )}
                         </div>
                         <div className="flex-1 flex flex-col items-center">
-                            <label className="block text-sm font-medium" style={{ color: background !== "#ffffff" ? background : 'inherit' }}>Background</label>
+                            <label className="block text-sm font-medium" style={{ color: getContrastColor(background) }}>Background</label>
                             {!qrImage && (
                                 <input
                                     type="color"
                                     value={background}
-                                    onChange={(e) => handleChange(e.target.value, 'background')}
+                                    onChange={(e) => setBackground(e.target.value)}
                                     className="w-20 h-10"
                                 />
                             )}
@@ -218,7 +283,7 @@ export default function Home() {
                     {!qrImage && (
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || !isFormValid}
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
                         >
                             {loading ? 'Generating...' : 'Generate QR'}
