@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
+import RouteLoader from "./RouteLoader";
 
 const apps = [
     { name: "Dashboard", icon: "📊" },
@@ -32,15 +33,15 @@ export default function AppsSection() {
                     <div
                         key={index}
                         onClick={() => handleClick(app.href)}
-                        className={`bg-white rounded-xl shadow hover:shadow-lg transition p-6 text-center hover:scale-[1.03] cursor-pointer ${
-                            app.href ? "" : "opacity-50 cursor-not-allowed"
-                        }`}
+                        className={`bg-white rounded-xl shadow hover:shadow-lg transition p-6 text-center hover:scale-[1.03] cursor-pointer ${app.href ? "" : "opacity-50 cursor-not-allowed"
+                            }`}
                     >
                         <div className="text-4xl mb-2">{app.icon}</div>
                         <h3 className="font-semibold text-lg">{app.name}</h3>
                         <p className="text-gray-500 mt-2 text-sm">
                             {app.href ? "Click to open the app." : "Coming soon..."}
                         </p>
+                        {isPending && <RouteLoader />}
                     </div>
                 ))}
             </div>
