@@ -36,8 +36,8 @@ export default function AdminDashboard() {
         try {
             const res = await axios.get(`${API_BASE}/api/qrcodes`);
             setQrcodes(res.data);
-        } catch (err: any) {
-            setError(err.message || 'Failed to fetch QR codes');
+        } catch (err) {
+            setError((err instanceof Error ? err.message : 'An unknown error occurred') || 'Failed to fetch QR codes');
         } finally {
             setLoading(false);
         }
@@ -54,7 +54,7 @@ export default function AdminDashboard() {
                 );
             }
         } catch (err) {
-            alert('Failed to toggle QR status');
+            alert(`Failed to toggle QR status: ${err}`);
         }
     };
 

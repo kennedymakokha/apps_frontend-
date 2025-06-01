@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import Image from 'next/image';
 
 export default function Home() {
     const [url, setUrl] = useState('');
@@ -94,8 +95,8 @@ export default function Home() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             setQrImage(res.data.qrImage);
-        } catch (err: any) {
-            setError(err.response?.data?.error || 'QR generation failed');
+        } catch (err) {
+            setError((err as any).response?.data?.error || 'QR generation failed');
         } finally {
             setLoading(false);
         }
@@ -293,7 +294,7 @@ export default function Home() {
 
                 {qrImage && (
                     <div className="mt-6 text-center">
-                        <img src={qrImage} alt="QR Code" className="mx-auto max-w-full" />
+                        <Image width={100} height={100} src={qrImage} alt="QR Code" className="mx-auto max-w-full" />
                         <button
                             onClick={handleDownload}
                             className="mt-4 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded"

@@ -9,6 +9,11 @@ type Device = {
     hostname: string
 };
 
+type ApiDevice = {
+    ip: string;
+    hostname?: string;
+};
+
 export default function NetworkScanner() {
     const [localIP, setLocalIP] = useState('');
     const [devices, setDevices] = useState<Device[]>([]);
@@ -29,11 +34,12 @@ export default function NetworkScanner() {
         try {
             const res = await fetch('http://185.113.249.137:5096/scan');
 
-            const data = await res.json();
-            const formatted = data.map((d: any, index: number) => ({
+            const data: ApiDevice[] = await res.json();
+            const formatted = data.map((d: ApiDevice, index: number) => ({
                 id: String(index),
                 name: `Device ${index + 1}`,
                 ip: d.ip,
+                hostname: d.hostname || 'Unknown',
             }));
             setDevices(formatted);
         } catch (err) {
