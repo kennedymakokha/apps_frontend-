@@ -96,7 +96,7 @@ export default function Home() {
             });
             setQrImage(res.data.qrImage);
         } catch (err) {
-            setError((err as any).response?.data?.error || 'QR generation failed');
+            setError((err instanceof Error ? err.message : 'An unknown error occurred') || 'Failed to fetch QR codes');
         } finally {
             setLoading(false);
         }
