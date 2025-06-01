@@ -27,7 +27,7 @@ export default function NetworkScanner() {
 
     const scanNetwork = async () => {
         try {
-            const res = await fetch('http://localhost:5000/scan');
+            const res = await fetch('http://185.113.249.137:5096/scan');
 
             const data = await res.json();
             const formatted = data.map((d: any, index: number) => ({

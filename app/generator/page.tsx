@@ -15,7 +15,7 @@ export default function Home() {
     const [error, setError] = useState('');
     const [logo, setLogo] = useState<File | null>(null);
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
+    const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:7000';
 
     const handleLogoChange = (file: File | null) => {
         if (file && !file.type.startsWith('image/')) {
@@ -87,8 +87,8 @@ export default function Home() {
 
             // Correct endpoints matching your backend
             const endpoint = wifi
-                ? `${API_BASE}/api/generate-qr`     // WiFi generate QR
-                : `${API_BASE}/api/generate-qrtolink`; // URL generate QR
+                ? `${API_BASE}/api/wifi`     // WiFi generate QR
+                : `${API_BASE}/api/url`; // URL generate QR
 
             const res = await axios.post(endpoint, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
@@ -143,8 +143,8 @@ export default function Home() {
 
             // Correct endpoints matching your backend
             const endpoint = wifi
-                ? `${API_BASE}/api/download-qr`       // WiFi download QR
-                : `${API_BASE}/api/download-qrtolink`;  // URL download QR
+                ? `${API_BASE}/api/wifi/download`       // WiFi download QR
+                : `${API_BASE}/api/url/download`;  // URL download QR
 
             const res = await axios.post(endpoint, formData, {
                 responseType: 'blob',

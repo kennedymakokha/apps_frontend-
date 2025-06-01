@@ -19,7 +19,7 @@ interface Scan {
     };
     timestamp: string;
 }
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:7000';
 export default function ScanDetailPage() {
     const params = useParams();
     const scanId = params.scanId as string;

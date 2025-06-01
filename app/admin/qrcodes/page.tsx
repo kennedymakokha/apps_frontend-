@@ -12,6 +12,7 @@ interface QRCode {
     active: boolean;
     color: string;
     background: string;
+    scanCount: number;
     data: {
         ssid?: string;
         password?: string;
@@ -19,7 +20,7 @@ interface QRCode {
     };
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:7000';
 
 export default function AdminDashboard() {
     const [qrcodes, setQrcodes] = useState<QRCode[]>([]);
@@ -81,7 +82,8 @@ export default function AdminDashboard() {
                                 <th className="p-4 text-left">ID</th>
                                 <th className="p-4 text-left">Type</th>
                                 <th className="p-4 text-left">Data</th>
-                                <th className="p-4 text-left">Status</th>
+                                <th className="p-4 text-left">scanCount</th>
+        <th className="p-4 text-left">Status</th>
                                 <th className="p-4 text-left">Action</th>
                             </tr>
                         </thead>
@@ -108,6 +110,11 @@ export default function AdminDashboard() {
                                     <td className="p-4">
                                         <span className={`px-3 py-1 text-xs rounded-full font-semibold transition ${qr.active ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
                                             {qr.active ? 'Active' : 'Inactive'}
+                                        </span>
+                                    </td>
+                                    <td className="p-4">
+                                        <span className={`px-3 py-1 text-xs rounded-full font-semibold transition ${qr.active ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`}>
+                                            {qr.scanCount}
                                         </span>
                                     </td>
                                     <td className="p-4">
