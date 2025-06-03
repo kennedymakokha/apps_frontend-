@@ -39,34 +39,7 @@ export default function Home() {
         return (r * 0.299 + g * 0.587 + b * 0.114) > 186 ? '#000' : '#fff';
     };
 
-    // const handleGenerate = async (e: React.FormEvent) => {
-    //     e.preventDefault();
-    //     setLoading(true);
-    //     setError('');
-    //     setQrImage('');
-
-    //     try {
-    //         const formData = new FormData();
-    //         if (wifi) {
-    //             formData.append('ssid', ssid);
-    //             formData.append('password', password);
-    //         } else {
-    //             formData.append('url', url);
-    //         }
-
-    //         formData.append('color', color);
-    //         formData.append('background', background);
-    //         if (logo) formData.append('logo', logo);
-
-    //         const endpoint = wifi ? `${API_BASE}/api/generate-qr` : `${API_BASE}/api/generate-qrtolink`;
-    //         const res = await axios.post(endpoint, formData);
-    //         setQrImage(res.data.qrImage);
-    //     } catch (err: any) {
-    //         setError(err.response?.data?.error || 'QR generation failed');
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // };
+   
     const handleGenerate = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);

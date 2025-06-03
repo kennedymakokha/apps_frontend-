@@ -13,6 +13,7 @@ export default function Home() {
   const [wifi, setWifi] = useState(false);
   const [qrImage, setQrImage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [expired, setExpired] = useState(false);
   const [error, setError] = useState('');
   const [logo, setLogo] = useState<File | null>(null);
 
@@ -172,8 +173,13 @@ export default function Home() {
         setColor('#000000');
         setBackground('#ffffff');
         setLogo(null);
-        alert('QR code expired. Please regenerate.');
-      }, 10 * 60 * 1000);
+        setExpired(true)
+      }, 5 * 60 * 1000);
+      return () => clearTimeout(timer);
+    } else {
+      const timer = setTimeout(() => {
+        setExpired(false)
+      }, 2 * 60 * 1000);
       return () => clearTimeout(timer);
     }
   }, [qrImage]);
@@ -193,7 +199,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen text-black bg-slate-800 flex items-center justify-center p-4">
-      <div className="bg-white shadow-xl rounded-lg max-w-md w-full p-6">
+      <div className={`bg-white rounded-lg max-w-md w-full p-6 shadow-[0_0_20px_4px_rgba(239,68,68,0.7)]}`}>
         <h1 className="text-2xl font-bold text-center mb-6">QR Code Generator</h1>
 
         <div className="flex w-full px-2 h-10 gap-2 mb-4">
@@ -305,7 +311,9 @@ export default function Home() {
         )}
 
         {error && <p className="mt-4 text-red-600 text-sm text-center">{error}</p>}
+        {expired && <div className="flex  items-center justify-center py-2 uppercase text-red-500 px-4">code Expired !!!</div>}
       </div>
+
     </main>
   );
 }
