@@ -1,7 +1,6 @@
 // 
 
-import Link from "next/link";
-import { Chart } from "../compnents/Chart";
+
 import { Navbar } from "../compnents/navbar";
 import { Sidebar } from "../compnents/Sidebar";
 
